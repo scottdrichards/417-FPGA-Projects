@@ -47,25 +47,19 @@ module fir_filter
     
     integer i;
     always@(posedge clk)begin
-        // Reset
+        // Update weights
         if (rst)begin
-            for (i = 0; i< NUM_ELEMENTS; i = i+1)begin
-                values[i] <= 0;
-                weights[i] <= 0;
-            end
-        end else begin
-            if (weight_valid)
-                weights[weight_idx] <= weight_data;
-            if (input_valid)begin
-                // Shift the values down the line, have to start at the end
-                // so you don't overwrite stuff
-                for (i = NUM_ELEMENTS-1; i> 0; i=i-1)begin
-                    values[i] <= values[i-1];
-                end
-                // Bring in the new value
-                values[0] <= input_data;
-            end    
-         end
+            for (i = 0; i< NUM_ELEMENTS; i = i+1)
+                weights[i] = 0;
+        end else if (weight_valid)
+            weights[weight_idx] = weight_data;
+     
+        // Shift the values down the line
+        for (i = NUM_ELEMENTS-1; i> 0; i=i-1)begin
+            values[i] <= rst?0:values[i-1];
+        end
+        // Bring in the new value
+        values[0] <= rst?0:input_data;
     end
     
     // This section combines the weights and values to generate a total sum
@@ -76,7 +70,5 @@ module fir_filter
         for (j = 1; j<NUM_ELEMENTS; j=j+1)begin:summation
             assign intermediate_sums[j] = i?intermediate_sums[j-1]:0 + values[j]*weights[j];
         end
-    endgenerate    
-    
-
+    endgenerate
 endmodule
