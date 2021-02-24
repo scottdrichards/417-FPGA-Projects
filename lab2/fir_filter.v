@@ -30,7 +30,7 @@ module fir_filter
     input [ 7 : 0 ] weight_data,
     input [ 2 : 0 ] weight_idx,
     input weight_valid,
-    output reg weight_ready,
+    output weight_ready,
     input [ 7 : 0 ] input_data,
     input input_valid,
     output input_ready,
@@ -38,6 +38,10 @@ module fir_filter
     input output_ready,
     output output_valid
 );
+    assign weight_ready = 1;
+    assign input_ready = 1;
+    assign output_valid = 1;
+    
     // weight (and value) index 0 is beginning, NUM_ELEMENTS-1 is end
     reg [7:0] weights [NUM_ELEMENTS-1:0];
         
@@ -67,8 +71,8 @@ module fir_filter
     assign output_data = intermediate_sums[NUM_ELEMENTS-1]; // result
     generate
         genvar j;
-        for (j = 1; j<NUM_ELEMENTS; j=j+1)begin:summation
-            assign intermediate_sums[j] = i?intermediate_sums[j-1]:0 + values[j]*weights[j];
+        for (j = 0; j<NUM_ELEMENTS; j=j+1)begin:summation
+            assign intermediate_sums[j] = (j?intermediate_sums[j-1]:0) + values[j]*weights[j];
         end
     endgenerate
 endmodule
