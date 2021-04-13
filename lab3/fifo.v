@@ -1,7 +1,7 @@
 `timescale 1ns/100ps
 
 module fifo #(
-    parameter DWIDTH     = 64,
+    parameter DWIDTH     = 16,
     parameter LOG2_DEPTH = 4
 ) (
     input [DWIDTH-1:0]  din,
